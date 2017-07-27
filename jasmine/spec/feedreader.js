@@ -56,13 +56,28 @@ $(function() {
             
             let menuIcon = $('.menu-icon-link');
 
-            //Ensure the menu is hidden, and test when click icon the menu is display;
+            /*
+            I removed:
             body.addClass('menu-hidden');
+            body.removeClass('menu-hidden');
+
+            The comment from the reviewer is:
+            "We shouldn't manipulate app's functionality while doing testing."
+            
+            Now I hope not to receive a comment because I think that now this test is not independent:
+            the first click *assumes* the menu is hidden....that is why I added the class.
+
+            I received a similar commet of independence in the first review, where in the last test I assumed
+            that the feed entries were loaded with the 0-index ulr. But the reviewer pointed out that my
+            assumptions were not necesaraly correct, that is why I changed the test to call two times the loadFeed().
+
+            For this reason, I did not want to assume that the menu was hidden...so I added the class 'menu-hidden'.
+            */
+            // test when click icon the menu is display;
             menuIcon.trigger('click');
             expect(body.hasClass('menu-hidden')).toBe(false);
 
-            //Ensure the menu is display, and test when click icon the menu is hidden;
-            body.removeClass('menu-hidden');
+            // test when click icon the menu is hidden;
             menuIcon.trigger('click');
             expect(body.hasClass('menu-hidden')).toBe(true);
 
@@ -90,15 +105,18 @@ $(function() {
         beforeEach( function(done) {
 
             loadFeed(0, function() {
+                
                 console.log('loadFeed-1 is finished');
                 oldContent = $('.feed').find('.entry');
+
+                loadFeed(1, function() {
+                    console.log('loadFeed-2 is finished');
+                    done();
+                });
             });
             
 
-            loadFeed(1, function() {
-                console.log('loadFeed-2 is finished');
-                done();
-            });
+            
         });
 
         // a test that ensures that the content actually changes when a new feed is loaded
